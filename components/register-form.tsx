@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { signUp } from "@/lib/auth-client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signUpEmailAction } from "@/app/actions";
 
 export default function RegisterForm() {
   const [isPending, setIsPending] = useState(false);
@@ -15,39 +16,53 @@ export default function RegisterForm() {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    setIsPending(true);
+
     const formData = new FormData(event.target as HTMLFormElement);
 
-    const name = String(formData.get("name"));
-    if (!name) return toast.error("Please enter your name.");
+    const { error } = await signUpEmailAction(formData);
 
-    const email = String(formData.get("email"));
-    if (!email) return toast.error("Please enter your email.");
+    if (error) {
+      toast.error(error);
+      setIsPending(false);
+    } else {
+      toast.success("Registration complete!");
+      router.push("/auth/login");
+    }
 
-    const password = String(formData.get("password"));
-    if (!password) return toast.error("Please enter your password.");
+    //**WE ARE CALLING AUTH-CLIENT FOR CLIENT SIDE AUTHENTICATION  */
+    // const name = String(formData.get("name"));
+    // if (!name) return toast.error("Please enter your name.");
 
-    await signUp.email(
-      {
-        name,
-        email,
-        password,
-      },
-      {
-        onRequest: () => {
-          setIsPending(true);
-        },
-        onResponse: () => {
-          setIsPending(false);
-        },
-        onError: (ctx) => {
-          toast.error(ctx.error.message);
-        },
-        onSuccess: () => {
-          toast.success("Registration complete!");
-          router.push("/auth/login");
-        },
-      },
-    );
+    // const email = String(formData.get("email"));
+    // if (!email) return toast.error("Please enter your email.");
+
+    // const password = String(formData.get("password"));
+    // if (!password) return toast.error("Please enter your password.");
+
+    // await signUp.email(
+    //   {
+    //     name,
+    //     email,
+    //     password,
+    //   },
+    //   {
+    //     onRequest: () => {
+    //       setIsPending(true);
+    //     },
+    //     onResponse: () => {
+    //       setIsPending(false);
+    //     },
+    //     onError: (ctx) => {
+    //       toast.error(ctx.error.message);
+    //     },
+    //     onSuccess: () => {
+    //       toast.success("Registration complete!");
+    //       router.push("/auth/login");
+    //     },
+    //   },
+    // );
+    //**END WE ARE CALLING AUTH-CLIENT FOR CLIENT SIDE AUTHENTICATION  */
   }
 
   return (
