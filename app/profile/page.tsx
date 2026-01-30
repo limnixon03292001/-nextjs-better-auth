@@ -2,15 +2,15 @@ import ReturnBtn from "@/components/return-btn";
 import SignOutBtn from "@/components/sign-out-btn";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 export default async function page() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
-  if (!session) {
-    return <p className="text-destructive">Unauthorized</p>;
-  }
+  //2nd line of protection for unauthenticated users (1st line of protection (middleware))
+  if (!session) redirect("/auth/login");
 
   return (
     <div className="px-8 py-16 container mx-auto max-w-5xl space-y-8">

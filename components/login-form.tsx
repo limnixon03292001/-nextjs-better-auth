@@ -73,7 +73,7 @@ export default function LoginForm() {
         </div>
 
         <Button type="submit" className="w-full" disabled={isPending}>
-          Register
+          Login
         </Button>
       </form>
     </>

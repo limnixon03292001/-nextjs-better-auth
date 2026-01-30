@@ -17,6 +17,9 @@ export const auth = betterAuth({
       verify: verifyPassword,
     },
   },
+  session: {
+    expiresIn: 30 * 24 * 60 * 60, //expires in 30days (just a sample)
+  },
   advanced: {
     database: {
       generateId: false,
@@ -24,3 +27,5 @@ export const auth = betterAuth({
   },
   plugins: [nextCookies()],
 });
+
+export type ErrorCodes = keyof typeof auth.$ERROR_CODES | "UNKNOWN";
