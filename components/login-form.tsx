@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { signIn } from "@/lib/auth-client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signInEmailAction } from "@/app/actions";
 
 export default function LoginForm() {
   const [isPending, setIsPending] = useState(false);
@@ -17,33 +18,45 @@ export default function LoginForm() {
 
     const formData = new FormData(event.target as HTMLFormElement);
 
-    const email = String(formData.get("email"));
-    if (!email) return toast.error("Please enter your email.");
+    const { error } = await signInEmailAction(formData);
 
-    const password = String(formData.get("password"));
-    if (!password) return toast.error("Please enter your password.");
+    if (error) {
+      toast.error(error);
+      setIsPending(false);
+    } else {
+      toast.success("Login successful!");
+      router.push("/profile");
+    }
 
-    await signIn.email(
-      {
-        email,
-        password,
-      },
-      {
-        onRequest: () => {
-          setIsPending(true);
-        },
-        onResponse: () => {
-          setIsPending(false);
-        },
-        onError: (ctx) => {
-          toast.error(ctx.error.message);
-        },
-        onSuccess: () => {
-          toast.success("Login successful!");
-          router.push("/profile");
-        },
-      },
-    );
+    //**WE ARE CALLING AUTH-CLIENT FOR CLIENT SIDE AUTHENTICATION  */
+    // const email = String(formData.get("email"));
+    // if (!email) return toast.error("Please enter your email.");
+
+    // const password = String(formData.get("password"));
+    // if (!password) return toast.error("Please enter your password.");
+
+    // await signIn.email(
+    //   {
+    //     email,
+    //     password,
+    //   },
+    //   {
+    //     onRequest: () => {
+    //       setIsPending(true);
+    //     },
+    //     onResponse: () => {
+    //       setIsPending(false);
+    //     },
+    //     onError: (ctx) => {
+    //       toast.error(ctx.error.message);
+    //     },
+    //     onSuccess: () => {
+    //       toast.success("Login successful!");
+    //       router.push("/profile");
+    //     },
+    //   },
+    // );
+    //**END WE ARE CALLING AUTH-CLIENT FOR CLIENT SIDE AUTHENTICATION  */
   }
 
   return (
