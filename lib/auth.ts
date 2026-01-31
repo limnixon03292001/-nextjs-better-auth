@@ -6,6 +6,8 @@ import { nextCookies } from "better-auth/next-js";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import { getValidDomains, normalizeName } from "./utils";
 import { role } from "better-auth/plugins";
+import { UserRole } from "./generated/prisma/enums";
+import { admin } from "better-auth/plugins";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -47,10 +49,25 @@ export const auth = betterAuth({
       }
     }),
   },
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          const ADMIN_EMAILS = process.env.ADMIN_EMAILS?.split(";") ?? [];
+
+          if (ADMIN_EMAILS.includes(user.email)) {
+            return { data: { ...user, role: UserRole.Admin } };
+          }
+
+          return { data: user };
+        },
+      },
+    },
+  },
   user: {
     additionalFields: {
       role: {
-        type: ["User", "Admin"],
+        type: ["User", "Admin"] as Array<UserRole>,
         input: false,
       },
     },
@@ -63,7 +80,13 @@ export const auth = betterAuth({
       generateId: false,
     },
   },
-  plugins: [nextCookies()],
+  plugins: [
+    nextCookies(),
+    admin({
+      defaultRole: UserRole.User,
+      adminRoles: [UserRole.Admin],
+    }),
+  ],
 });
 
 export type ErrorCodes = keyof typeof auth.$ERROR_CODES | "UNKNOWN";
