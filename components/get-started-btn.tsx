@@ -24,7 +24,15 @@ export default function GetStartedBtn() {
         <Link href={href}> Get Started</Link>
       </Button>
 
-      {session && <p>Welcome back, {session.user.name}!👋</p>}
+      {session && (
+        <p className="flex items-center gap-2">
+          <span
+            data-role={session.user.role}
+            className="size-4 rounded-full animate-pulse data-[role=User]:bg-blue-600 data-[role=Admin]:bg-red-600"
+          />{" "}
+          Welcome back, {session.user.name}!👋
+        </p>
+      )}
     </div>
   );
 }

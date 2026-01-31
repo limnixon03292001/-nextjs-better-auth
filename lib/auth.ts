@@ -5,6 +5,7 @@ import { hashPassword, verifyPassword } from "@/lib/argon2";
 import { nextCookies } from "better-auth/next-js";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import { getValidDomains, normalizeName } from "./utils";
+import { role } from "better-auth/plugins";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -45,6 +46,14 @@ export const auth = betterAuth({
         };
       }
     }),
+  },
+  user: {
+    additionalFields: {
+      role: {
+        type: ["User", "Admin"],
+        input: false,
+      },
+    },
   },
   session: {
     expiresIn: 30 * 24 * 60 * 60, //expires in 30days (just a sample)
