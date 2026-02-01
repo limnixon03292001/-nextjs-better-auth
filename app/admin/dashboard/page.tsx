@@ -3,15 +3,19 @@ import DeleteUserBtn, {
 } from "@/components/delete-user-btn";
 import LoginForm from "@/components/login-form";
 import ReturnBtn from "@/components/return-btn";
+import UserRoleSelect from "@/components/user-role-select";
 import { auth } from "@/lib/auth";
+import { UserRole } from "@/lib/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function Dashboard() {
+  const headersList = await headers();
+
   const session = await auth.api.getSession({
-    headers: await headers(),
+    headers: headersList,
   });
 
   if (!session) redirect("/auth/login");
@@ -32,8 +36,23 @@ export default async function Dashboard() {
   }
 
   //query to the db using PRISMA, find all users
-  const users = await prisma.user.findMany({
-    orderBy: { name: "asc" },
+  // const users = await prisma.user.findMany({
+  //   orderBy: { name: "asc" },
+  // });
+
+  //here we are directly using the better auth api to get the user list instead of prisma
+  const { users } = await auth.api.listUsers({
+    headers: headersList,
+    query: {
+      sortBy: "name",
+    },
+  });
+
+  const sortedUsers = users.sort((a, b) => {
+    if (a.role === "Admin" && b.role !== "Admin") return -1;
+    if (a.role !== "Admin" && b.role === "Admin") return 1;
+
+    return 0;
   });
 
   return (
@@ -60,12 +79,17 @@ export default async function Dashboard() {
           </thead>
 
           <tbody>
-            {users.map((user) => (
+            {sortedUsers.map((user) => (
               <tr key={user.id} className="border-b text-sm text-left">
                 <td className="px-4 py-2">{user.id.slice(0, 8)}</td>
                 <td className="px-4 py-2">{user.name}</td>
                 <td className="px-4 py-2">{user.email}</td>
-                <td className="px-4 py-2 text-center">{user.role}</td>
+                <td className="px-4 py-2 text-center">
+                  <UserRoleSelect
+                    userId={user.id}
+                    role={user.role as UserRole}
+                  />
+                </td>
                 <td className="px-4 py-2 text-center">
                   {user.role === "User" ? (
                     <DeleteUserBtn userId={user.id} />

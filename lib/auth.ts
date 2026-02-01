@@ -8,6 +8,7 @@ import { getValidDomains, normalizeName } from "./utils";
 import { role } from "better-auth/plugins";
 import { UserRole } from "./generated/prisma/enums";
 import { admin } from "better-auth/plugins";
+import { ac, roles } from "@/lib/permissions";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -85,6 +86,8 @@ export const auth = betterAuth({
     admin({
       defaultRole: UserRole.User,
       adminRoles: [UserRole.Admin],
+      ac,
+      roles,
     }),
   ],
 });
