@@ -8,6 +8,9 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { revalidatePath } from "next/cache";
+import transporter from "@/lib/nodemailer";
+import { error } from "console";
+import { success } from "better-auth";
 
 export async function signUpEmailAction(formData: FormData) {
   const name = String(formData.get("name"));
@@ -134,5 +137,47 @@ export async function deleteUserAction({ userId }: { userId: string }) {
     }
 
     return { error: "Internal Server Error" };
+  }
+}
+
+const styles = {
+  container:
+    "max-width:500px; margin: 20px auto; padding: 20px; border: 1px solid #DDD; border-radius: 6px;",
+  heading: "font-size: 20px; color: #333;",
+  paragraph: "font-size: 16px;",
+  link: "display: inlin-block; margin-top: 15px; padding: 10px 15px; background: #007BFF; color: #FFF, text-decoration: none; border-radius: 4px;",
+};
+
+export async function sendEmailAction({
+  to,
+  subject,
+  meta,
+}: {
+  to: string;
+  subject: string;
+  meta: {
+    description: string;
+    link: string;
+  };
+}) {
+  const mailOptions = {
+    from: process.env.NODEMAILER_USER,
+    to,
+    subject: `Next.js Better Auth - ${subject}`,
+    html: `
+      <div style="${styles.container}">
+        <h1 style="${styles.heading}">${subject}</h1>
+        <p style="${styles.paragraph}">${meta.description}</p>
+        <a href="${meta.link}" style="${styles.link}">Click here</a>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    return { success: true };
+  } catch (err) {
+    console.error("sendEmailAction", err);
+    return { success: false };
   }
 }

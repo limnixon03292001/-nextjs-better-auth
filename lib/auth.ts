@@ -9,6 +9,7 @@ import { role } from "better-auth/plugins";
 import { UserRole } from "./generated/prisma/enums";
 import { admin } from "better-auth/plugins";
 import { ac, roles } from "@/lib/permissions";
+import { sendEmailAction } from "@/app/actions";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -21,6 +22,28 @@ export const auth = betterAuth({
     password: {
       hash: hashPassword,
       verify: verifyPassword,
+    },
+    requireEmailVerification: true,
+  },
+  emailVerification: {
+    sendOnSignUp: true,
+    // expires in 1hr
+    expiresIn: 60 * 60,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      const link = new URL(url);
+      link.searchParams.set("callbackURL", "/auth/verify");
+
+      // const link = new URL(url);
+      await sendEmailAction({
+        to: user.email,
+        subject: "Verify Your Email Address",
+        meta: {
+          description:
+            "Please verify your email address to complete registration.",
+          link: String(link),
+        },
+      });
     },
   },
   baseURL: process.env.BETTER_AUTH_URL,
