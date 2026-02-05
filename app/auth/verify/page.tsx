@@ -21,7 +21,9 @@ export default async function VerifyPage({ searchParams }: VerifyPageProps) {
       <p className="text-destructive">
         {sp.error === "invalid_token" || sp.error === "token_expired"
           ? "Your token is invalid or expired please request a new one."
-          : "Oops! Something went wrong. Please try again."}
+          : sp.error === "email_not_verified"
+            ? "Please verify your email, or request a new verification below."
+            : "Oops! Something went wrong. Please try again."}
       </p>
 
       <SendVerificationEmailForm />

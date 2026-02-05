@@ -91,7 +91,15 @@ export async function signInEmailAction(formData: FormData) {
     return { error: null };
   } catch (err) {
     if (err instanceof APIError) {
-      return { error: err.message };
+      const errCode = err.body ? (err.body.code as ErrorCodes) : "UNKNOWN";
+
+      switch (errCode) {
+        case "EMAIL_NOT_VERIFIED":
+          redirect("/auth/verify?error=email_not_verified");
+
+        default:
+          return { error: err.message };
+      }
     }
     return { error: "Internal Server Error" };
   }
