@@ -9,7 +9,7 @@ const transporter = nodemailer.createTransport({
     pass: process.env.NODEMAILER_APP_PASSWORD,
   },
 
-  //we should remove this on production
+  //we should remove this in production
   tls: {
     rejectUnauthorized: false,
   },
