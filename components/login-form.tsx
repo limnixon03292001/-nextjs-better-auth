@@ -8,6 +8,7 @@ import { signIn } from "@/lib/auth-client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signInEmailAction } from "@/app/actions";
+import Link from "next/link";
 
 export default function LoginForm() {
   const [isPending, setIsPending] = useState(false);
@@ -68,7 +69,15 @@ export default function LoginForm() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <div className="flex justify-between items-center gap-2">
+            <Label htmlFor="password">Password</Label>
+            <Link
+              href="/auth/forgot-password"
+              className="text-sm italic text-muted-foreground hover:text-foreground"
+            >
+              Forgot password?
+            </Link>
+          </div>
           <Input id="password" name="password" />
         </div>
 

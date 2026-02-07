@@ -1,6 +1,7 @@
 import ReturnBtn from "@/components/return-btn";
 import SignOutBtn from "@/components/sign-out-btn";
 import { Button } from "@/components/ui/button";
+import UpdateUserForm from "@/components/update-user";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import Link from "next/link";
@@ -52,9 +53,32 @@ export default async function page() {
         </Button>
       </div>
 
+      {session.user.image ? (
+        <img
+          src={session.user.image}
+          alt="User Image"
+          className="size-24 borer border-primary rounded-md object-cover"
+        />
+      ) : (
+        <div className="size-20 boroder border-primary rounded-md bg-primary text-primary-foreground flex items-center justify-center">
+          <span className="uppercase text-lg font-bold">
+            {session.user.name.slice(0, 2)}
+          </span>
+        </div>
+      )}
+
       <pre className="text-sm overflow-clip">
         {JSON.stringify(session, null, 2)}
       </pre>
+
+      <div className="space-y-4 p-4 rounded-b-md border border-t-8 border-blue-600">
+        <h2 className="text-2xl font-bold">Update User</h2>
+
+        <UpdateUserForm
+          name={session.user.name}
+          image={session.user.image ?? ""}
+        />
+      </div>
     </div>
   );
 }
